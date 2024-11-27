@@ -8,7 +8,7 @@ import { Like } from "../models/like.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { User } from "../models/user.model.js";
 
-// Get All Videos
+// Get All Videos with search, pagination, and sorting
 const getAllvideos = asyncHandler(async (req, res) => {
   try {
     const {
@@ -19,8 +19,7 @@ const getAllvideos = asyncHandler(async (req, res) => {
       sortType = "asc",
     } = req.query;
 
-    // get all videos based on query, sort, pagination
-
+    // Aggregate pipeline to fetch videos with search, lookup, and sorting
     const videos = await Video.aggregate([
       {
         $match: {
@@ -80,16 +79,17 @@ const getAllvideos = asyncHandler(async (req, res) => {
   }
 });
 
-// Publish Videos
+// Publish a Videos
 const publishAVideo = asyncHandler(async (req, res) => {
   try {
     const { title, description, duration } = req.body;
 
-    // Validate input
+    // Validate input feild for empty values
     if ([title, description, duration].some((field) => field?.trim() === "")) {
       throw new ApiError(400, "Please provide title and description");
     }
 
+    // Upload video and thumbnail to cloudinary
     const videoLocalPath = req.files?.videoFile[0]?.path;
     const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
 
@@ -141,11 +141,12 @@ const publishAVideo = asyncHandler(async (req, res) => {
   }
 });
 
-// Get Video By_ID
+// Get Video By ID with additional information like likes and subscriptions
 const getVideoById = asyncHandler(async (req, res) => {
   try {
     const { videoId } = req.params;
 
+    // Validate videoId
     if (!videoId || !mongoose.isValidObjectId(videoId)) {
       throw new ApiError(400, "provide video id");
     }
@@ -209,6 +210,7 @@ const updatedVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
     const { titleNew, descriptionNew } = req.body;
 
+    // Validate videoId and check if the video exists
     if (!videoId || !mongoose.isValidObjectId(videoId)) {
       throw new ApiError(400, "provide valid videoId");
     }

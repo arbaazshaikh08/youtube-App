@@ -10,6 +10,7 @@ import mongoose, { isValidObjectId } from "mongoose";
 
 // Toggle Video Like
 const toggleVideolike = asyncHandler(async (req, res) => {
+  
   const { videoId } = req.params;
 
   if (!videoId || !mongoose.isValidObjectId(videoId)) {
@@ -47,48 +48,53 @@ const toggleVideolike = asyncHandler(async (req, res) => {
 
 // Toggle Comment Like
 const toggleCommentLike = asyncHandler(async (req, res) => {
-  const { CommentId } = req.params;
-
-  if (!CommentId || isValidObjectId(CommentId)) {
-    throw new ApiError(400, "give proper comment id");
-  }
-  const ifCommentExist = await Comment.findById(CommentId);
-
-  if (!ifCommentExist) {
-    throw new ApiError(404, "The comment not found");
-  }
-
-  const ifLike = await Like.findOne({
-    comment: CommentId,
-    likedBy: req.user._id,
-  });
-
-  if (!ifLike) {
-    try {
-      await Like.create({
-        comment: CommentId,
-        likedBy: req.user._id,
-      });
-      return res.json(new ApiResponse("Comment like Successfully"));
-    } catch (error) {
-      throw new ApiError(500, "something went wrong while adding your like");
+  
+    const { CommentId } = req.params;
+  
+    if (!CommentId || isValidObjectId(CommentId)) {
+      throw new ApiError(400, "give proper comment id");
     }
-  } else {
-    try {
-      await Like.deleteOne({
-        comment: CommentId,
-        likedBy: req.user._id,
-      });
-      return res
+    // Check if the comment exists
+    const ifCommentExist = await Comment.findById(CommentId);
+  
+    if (!ifCommentExist) {
+      throw new ApiError(404, "The comment not found");
+    }
+  
+    const ifLike = await Like.findOne({
+      comment: CommentId,
+      likedBy: req.user._id,
+    });
+  
+    if (!ifLike) {
+      try {
+        await Like.create({
+          comment: CommentId,
+          likedBy: req.user._id,
+        });
+        return res
         .status(200)
-        .json(new ApiResponse(200, "unliked", "like remove"));
-    } catch (error) {
-      throw new ApiError(
-        500,
-        "something went wrong when removing your like !!"
-      );
+        .json(new ApiResponse("Comment like Successfully"));
+      } catch (error) {
+        throw new ApiError(500, "something went wrong while adding your like");
+      }
+    } else {
+      try {
+        await Like.deleteOne({
+          comment: CommentId,
+          likedBy: req.user._id,
+        });
+        return res
+          .status(200)
+          .json(new ApiResponse(200, "unliked", "like remove"));
+      } catch (error) {
+        throw new ApiError(
+          500,
+          "something went wrong when removing your like !!"
+        );
+      }
     }
-  }
+ 
 }); 
 
 

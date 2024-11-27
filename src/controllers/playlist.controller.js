@@ -6,7 +6,6 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import { Video } from "../models/video.model.js";
 
-
 // Create a new playlist
 const createPlaylist = asyncHandler(async (req, res) => {
   try {
@@ -32,7 +31,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
         "Something went wrong when creating your playlist"
       );
     }
-    res
+    return res
       .status(201)
       .json(new ApiResponse(201, playlist, "Playlist created  successfully"));
   } catch (error) {
@@ -41,7 +40,6 @@ const createPlaylist = asyncHandler(async (req, res) => {
       .json({ message: error.message || "Something went wrong" });
   }
 });
-
 
 // Get all playlists owned by a specific user
 const getUserPlaylists = asyncHandler(async (req, res) => {
@@ -65,16 +63,16 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
       throw new ApiError(404, "This user have not any playlist yet");
     }
 
-    res
+    return res
       .status(200)
       .json(new ApiResponse(200, playlists, "Playlist fetched successfully"));
+
   } catch (error) {
     return res
       .status(error.statusCode || 500)
       .json({ message: error.message || "Something went wrong" });
   }
 });
-
 
 // Get a playlist by its ID
 const getPlaylistById = asyncHandler(async (req, res) => {
@@ -91,7 +89,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
       throw new ApiError(404, "Playlist is not Found");
     }
 
-    res
+    return res
       .status(200)
       .json(new ApiResponse(200, playlist, "PlayList fetched successfully"));
   } catch (error) {
@@ -100,7 +98,6 @@ const getPlaylistById = asyncHandler(async (req, res) => {
       .json({ message: error.message || "Something went wrong" });
   }
 });
-
 
 // Add a video to a playlist
 const addVideotoPlaylist = asyncHandler(async (req, res) => {
@@ -177,7 +174,6 @@ const addVideotoPlaylist = asyncHandler(async (req, res) => {
   }
 });
 
-
 // Remove a video from a playlist
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
   try {
@@ -244,7 +240,6 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
   }
 });
 
-
 // Add the video to the playlist
 const updatePlaylist = asyncHandler(async (req, res) => {
   try {
@@ -301,7 +296,6 @@ const updatePlaylist = asyncHandler(async (req, res) => {
   }
 });
 
-
 // Delete a Video from Playlist
 const deletePlaylist = asyncHandler(async (req, res) => {
   try {
@@ -330,7 +324,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     const deletedPlaylist = await Playlist.findByIdAndDelete(playlistId);
     if (!deletedPlaylist) {
       throw new ApiError(
-        500,
+        400,
         "Something went wrong when deleting the playlist"
       );
     }
@@ -338,7 +332,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     return res
       .status(200)
       .json(
-        new ApiResponse(200, deletedPlaylist, "Playlist deleted successfully")
+        new ApiResponse(200, "Playlist deleted successfully")
       );
   } catch (error) {
     return res
@@ -346,7 +340,6 @@ const deletePlaylist = asyncHandler(async (req, res) => {
       .json({ message: error.message || "Something went wrong" });
   }
 });
-
 
 export {
   createPlaylist,
