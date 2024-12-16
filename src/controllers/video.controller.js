@@ -247,7 +247,7 @@ const updatedVideo = asyncHandler(async (req, res) => {
         500,
         "Something went wrong when updating video details"
       );
-    }
+    } 
 
     return res
       .status(200)

@@ -10,7 +10,7 @@ import mongoose, { isValidObjectId } from "mongoose";
 
 // Toggle Video Like
 const toggleVideolike = asyncHandler(async (req, res) => {
-  
+
   const { videoId } = req.params;
 
   if (!videoId || !mongoose.isValidObjectId(videoId)) {
@@ -195,7 +195,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
         new ApiResponse(200, likedVideos, "liked videos fetched successfully")
       );
   } catch (error) {
-    return res
+    return res 
       .status(error.statusCode || 500)
       .json({ message: error.message || "Something went wrong" });
   }

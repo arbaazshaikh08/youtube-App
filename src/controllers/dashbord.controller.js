@@ -168,7 +168,7 @@ const getChannelVideosOur = asyncHandler(async (req, res) => {
           likes: 1,
           thumbnail: 1,
         },
-      },
+      }, 
     ]);
     if (!videos) {
       throw new ApiError(400, "Something Went wrong");

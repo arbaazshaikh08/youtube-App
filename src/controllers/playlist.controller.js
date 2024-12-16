@@ -283,7 +283,7 @@ const updatePlaylist = asyncHandler(async (req, res) => {
         "Something went wrong when updating the playlist"
       );
     }
-
+ 
     return res
       .status(200)
       .json(

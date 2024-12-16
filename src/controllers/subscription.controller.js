@@ -126,7 +126,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     const user = await User.findById(SubscriberId);
     if (!user) {
       throw new ApiError(404, "subscriber not found");
-    }
+    } 
     const subscribedChannel = await Subscription.aggregate([
       { $match: { subscriber: new mongoose.Types.ObjectId(SubscriberId) } },
       {
