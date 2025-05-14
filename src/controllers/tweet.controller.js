@@ -68,7 +68,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
   }
 });
 
-// Delete Twwet
+// Delete Twwet 
 const deleteTweet = asyncHandler(async (req, res) => {
   try { 
     const { tweetId } = req.params;
