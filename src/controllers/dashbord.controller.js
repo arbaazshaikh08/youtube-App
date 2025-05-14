@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiResponce } from "../utils/ApiResponce.js";
 import { Video } from "../models/video.model.js";
 import { User } from "../models/user.model.js";
 import { Subscription } from "../models/subscription.model.js";
@@ -65,7 +65,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
     return res
       .status(200)
       .json(
-        new ApiResponse(
+        new ApiResponce(
           200,
           response,
           "user's channel details fetched successfully"
@@ -78,7 +78,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
   }
 });
 
-// Get channel videos
+// Get channel videos by username anyone
 const getChannelVideos = asyncHandler(async (req, res) => {
   try {
     const { username } = req.params;
@@ -86,9 +86,11 @@ const getChannelVideos = asyncHandler(async (req, res) => {
     if (!username) {
       throw new ApiError(400, "Username is missing");
     }
+
     const user = await User.findOne({ username });
+
     if (!user) {
-      throw new ApiError(404, "channel is not found");
+      throw new ApiError(404, "Channel not found");
     }
 
     const videos = await Video.aggregate([
@@ -97,55 +99,6 @@ const getChannelVideos = asyncHandler(async (req, res) => {
           owner: new mongoose.Types.ObjectId(user._id),
           isPublished: true,
         },
-      },
-
-      {
-        $lookup: {
-          from: "likes",
-          localField: "_id",
-          foreignField: "video",
-          as: "liked",
-        },
-      },
-      {
-        $addFields: {
-          owner: { username },
-          likes: {
-            size: "liked",
-          },
-        },
-      },
-    ]);
-    if (videos.length === 0) {
-      throw new ApiError(404, "This user have not uploaded any videos ye");
-    }
-
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          videos,
-          "videos of the provided channel is fetched successfully"
-        )
-      );
-  } catch (error) {
-    return res
-      .status(error.statusCode || 500)
-      .json({ message: error.message || "Something went wrong" });
-  }
-});
-
-//total Upload Video
-const getChannelVideosOur = asyncHandler(async (req, res) => {
-  try {
-    const user = req.user;
-    if (!user) {
-      throw new ApiError(400, "user not found");
-    }
-    const videos = await Video.aggregate([
-      {
-        $match: { owner: user._id },
       },
       {
         $lookup: {
@@ -162,22 +115,80 @@ const getChannelVideosOur = asyncHandler(async (req, res) => {
       },
       {
         $project: {
-          owner: user.username,
           title: 1,
           description: 1,
-          likes: 1,
           thumbnail: 1,
+          likes: 1,
+          createdAt: 1,
         },
-      }, 
+      },
     ]);
-    if (!videos) {
-      throw new ApiError(400, "Something Went wrong");
+
+    if (videos.length === 0) {
+      throw new ApiError(404, "This user has not uploaded any videos yet");
     }
 
     return res
       .status(200)
       .json(
-        new ApiResponse(200, videos, "Your channels videos found successfully")
+        new ApiResponce(200, videos, "Channel videos fetched successfully")
+      );
+  } catch (error) {
+    return res
+      .status(error.statusCode || 500)
+      .json({ message: error.message || "Something went wrong" });
+  }
+});
+
+//total Upload Videos in our channel
+const getChannelVideosOur = asyncHandler(async (req, res) => {
+  try {
+    const user = req.user;
+
+    if (!user || !user._id) {
+      throw new ApiError(400, "User not found in request");
+    }
+
+    const videos = await Video.aggregate([
+      {
+        $match: { owner: new mongoose.Types.ObjectId(user._id) },
+      },
+      {
+        $lookup: {
+          from: "likes",
+          localField: "_id",
+          foreignField: "video",
+          as: "liked",
+        },
+      },
+      {
+        $addFields: {
+          likes: { $size: "$liked" },
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          thumbnail: 1,
+          likes: 1,
+          createdAt: 1,
+        },
+      },
+    ]);
+
+    if (videos.length === 0) {
+      throw new ApiError(404, "You haven't uploaded any videos yet");
+    }
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponce(
+          200,
+          videos,
+          "Your channel's videos fetched successfully"
+        )
       );
   } catch (error) {
     return res

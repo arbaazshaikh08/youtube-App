@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { Comment } from "../models/comment.model.js";
 import mongoose from "mongoose";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiResponce } from "../utils/ApiResponce.js";
 import { Like } from "../models/like.model.js";
 
 // add Video Comment
@@ -30,7 +30,7 @@ const addComment = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, comment, "comment added successfully"));
+      .json(new ApiResponce(200, comment, "comment added successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -38,15 +38,14 @@ const addComment = asyncHandler(async (req, res) => {
   }
 });
 
-
 // Update Video  Comment
 const updateComment = asyncHandler(async (req, res) => {
   try {
     const { commentId } = req.params;
     const { content } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(commentId)) {
-      throw new ApiError(400, "Invalid comment ID");
+    if (!content || !mongoose.Types.ObjectId.isValid(commentId)) {
+      throw new ApiError(400, " plz provide content or Invalid comment ID");
     }
 
     const owner = req.user?._id;
@@ -64,7 +63,7 @@ const updateComment = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, comment, "comment updated successfully"));
+      .json(new ApiResponce(200, comment, "comment updated successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -72,13 +71,12 @@ const updateComment = asyncHandler(async (req, res) => {
   }
 });
 
-
 // get comment from Video
 const getVideoComments = asyncHandler(async (req, res) => {
   try {
     const { videoId } = req.params;
 
-    if (!mongoose.isValidObjectId(videoId)) {
+    if (!mongoose.Types.ObjectId.isValid(videoId)) {
       throw new ApiError(400, "Invalid video ID");
     }
 
@@ -89,19 +87,17 @@ const getVideoComments = asyncHandler(async (req, res) => {
       {
         $lookup: {
           from: "users",
-          foreignField: "_id",
           localField: "owner",
+          foreignField: "_id",
           as: "owner",
         },
       },
-      {
-        $unwind: "$owner",
-      },
+      { $unwind: "$owner" },
       {
         $lookup: {
           from: "likes",
-          foreignField: "comment",
           localField: "_id",
+          foreignField: "comment",
           as: "likes",
         },
       },
@@ -122,20 +118,15 @@ const getVideoComments = asyncHandler(async (req, res) => {
       },
     ]);
 
-    if (!comments || comments.length === 0) {
-      throw new ApiError(404, "No comment found on this video");
-    }
-
     return res
       .status(200)
-      .json(new ApiResponse(200, comments, "comments fetched successfully"));
+      .json(new ApiResponce(200, comments, "Comments fetched successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
       .json({ message: error.message || "Something went wrong" });
   }
 });
-
 
 // Delete a comment from Video
 const deleteComment = asyncHandler(async (req, res) => {
@@ -145,7 +136,7 @@ const deleteComment = asyncHandler(async (req, res) => {
     if (!commentId) {
       throw new ApiError(404, " Provide Comment ID");
     }
- 
+
     const comment = await Comment.findById(commentId);
     if (!comment) {
       throw new ApiError(404, "comment not found");
@@ -164,13 +155,12 @@ const deleteComment = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, {}, "comment is deleted successfully"));
+      .json(new ApiResponce(200, {}, "comment is deleted successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
       .json({ message: error.message || "Something went wrong" });
   }
 });
-
 
 export { addComment, updateComment, getVideoComments, deleteComment };

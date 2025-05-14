@@ -23,11 +23,11 @@ router
 router.route("/get-user-palylist/:userId").post(verifyJWT, getUserPlaylists);
 
 router
-  .route("/remove-video/:playlistId/videos/:videoId")
-  .post(verifyJWT, removeVideoFromPlaylist);
+  .route("/remove-video/playlist/:playlistId/videos/:videoId")
+  .post(verifyJWT, removeVideoFromPlaylist); 
 
-router.route("/update/:playlistId").post(verifyJWT, updatePlaylist);
-
+router.route("/update/:playlistId").patch(verifyJWT, updatePlaylist);
+ 
 router.route("/delete/:playlistId").delete(verifyJWT, deletePlaylist);
 
 export default router;

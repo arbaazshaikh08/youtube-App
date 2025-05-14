@@ -3,7 +3,7 @@ import { User } from "../models/user.model.js";
 import { Subscription } from "../models/subscription.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiResponce } from "../utils/ApiResponce.js";
 
 // Toggle Subscription
 const toggleSubscription = asyncHandler(async (req, res) => {
@@ -23,7 +23,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     subscriber: req.user._id,
     channel: channelId,
   });
-  
+
   if (!isExist) {
     try {
       await Subscription.create({
@@ -33,8 +33,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 
       return res
         .status(200)
-        .json(new ApiResponse(200, "subscribed", "subscription added"));
-
+        .json(new ApiResponce(200, "subscribed", "subscription added"));
     } catch (error) {
       throw new ApiError(
         500,
@@ -47,8 +46,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 
       return res
         .status(200)
-        .json(new ApiResponse(200, "subscription removed", "removed"));
-
+        .json(new ApiResponce(200, "subscription removed", "removed"));
     } catch (error) {
       throw new ApiError(
         500,
@@ -57,7 +55,6 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     }
   }
 });
-
 
 // controller  return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
@@ -105,14 +102,13 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     };
     return res
       .status(200)
-      .json(new ApiResponse(200, info, "subscribers fetched successfully"));
+      .json(new ApiResponce(200, info, "subscribers fetched successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
       .json({ message: error.message || "Something went wrong" });
   }
 });
-
 
 // controller  return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
@@ -126,7 +122,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     const user = await User.findById(SubscriberId);
     if (!user) {
       throw new ApiError(404, "subscriber not found");
-    } 
+    }
     const subscribedChannel = await Subscription.aggregate([
       { $match: { subscriber: new mongoose.Types.ObjectId(SubscriberId) } },
       {
@@ -152,7 +148,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     return res
       .status(200)
       .json(
-        new ApiResponse(
+        new ApiResponce(
           200,
           subscribedChannel,
           "subscribed channel fetched successfully"
@@ -164,6 +160,5 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
       .json({ message: error.message || "Something went wrong" });
   }
 });
-
 
 export { toggleSubscription, getUserChannelSubscribers, getSubscribedChannels };

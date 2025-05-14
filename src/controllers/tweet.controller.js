@@ -1,9 +1,10 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiResponce } from "../utils/ApiResponce.js";
 import { Tweet } from "../models/tweet.Model.js";
 import mongoose, { isValidObjectId } from "mongoose";
 import { User } from "../models/user.model.js";
+
 
 // create Tweet
 const createTweet = asyncHandler(async (req, res) => {
@@ -31,14 +32,13 @@ const createTweet = asyncHandler(async (req, res) => {
     }
     return res
       .status(200)
-      .json(new ApiResponse(200, tweet, "tweet made successfully"));
+      .json(new ApiResponce(200, tweet, "tweet made successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
       .json({ message: error.message || "Something went wrong" });
   }
 });
-
 
 //get User Tweet
 const getUserTweets = asyncHandler(async (req, res) => {
@@ -60,7 +60,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, tweets, "tweets fetched successfully"));
+      .json(new ApiResponce(200, tweets, "tweets fetched successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -68,51 +68,6 @@ const getUserTweets = asyncHandler(async (req, res) => {
   }
 });
 
-
-// Update Tweet
-const updatedTweet = asyncHandler(async (req, res) => {
-  try {
-    const { tweetId } = req.params;
-    const { content } = req.body;
-
-    if (!tweetId || !isValidObjectId(tweetId)) {
-      throw new ApiError(400, "provide proper tweet id");
-    }
-    if (!content) {
-      throw new ApiError(400, "provide proper description");
-    }
-    const tweet = await Tweet.findById(tweetId);
-    if (!tweet) {
-      throw new ApiError(404, "This tweet does not exist");
-    }
-    if (tweet.owner.toString() !== req.user._id.toString()) {
-      throw new ApiError(
-        403,
-        "You are not the owner of this tweet. Unable to edit"
-      );
-    }
-    const updatedTweet = await Tweet.findByIdAndUpdate(
-      { _id: tweetId },
-
-      { $set: { content } },
-
-      { new: true }
-    );
-
-    if (!updatedTweet) {
-      throw new ApiError(500, "something went wrong when updating your tweet");
-    }
-    return res
-      .status(200)
-      .json(new ApiResponse(200, updatedTweet, "tweet updated successfully"));
-  } catch (error) {
-    return res
-      .status(error.statusCode || 500)
-      .json({ message: error.message || "Something went wrong" });
-  }
-});
-
- 
 // Delete Twwet
 const deleteTweet = asyncHandler(async (req, res) => {
   try {
@@ -137,7 +92,7 @@ const deleteTweet = asyncHandler(async (req, res) => {
     }
     return res
       .status(200)
-      .json(new ApiResponse(200, "Tweet successfully deleted"));
+      .json(new ApiResponce(200, "Tweet successfully deleted"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -145,5 +100,4 @@ const deleteTweet = asyncHandler(async (req, res) => {
   }
 });
 
-
-export { createTweet, getUserTweets, updatedTweet, deleteTweet };
+export { createTweet, getUserTweets, deleteTweet };

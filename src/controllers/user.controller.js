@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiResponce } from "../utils/ApiResponce.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
@@ -73,7 +73,7 @@ const registerUser = asyncHandler(async (req, res) => {
     }
     return res
       .status(201)
-      .json(new ApiResponse(200, createdUser, "User registered successfully"));
+      .json(new ApiResponce(200, createdUser, "User registered successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -120,7 +120,7 @@ const loginUser = asyncHandler(async (req, res) => {
       .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", refreshToken, options)
       .json(
-        new ApiResponse(
+        new ApiResponce(
           200,
           {
             user: LoggedInUser,
@@ -161,7 +161,7 @@ const logoutUser = asyncHandler(async (req, res) => {
       .status(200)
       .clearCookie("accessToken", options)
       .clearCookie("refreshToken", options)
-      .json(new ApiResponse(200, {}, "User logged out"));
+      .json(new ApiResponce(200, {}, "User logged out"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -206,7 +206,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", newrefreshToken, options)
       .json(
-        new ApiResponse(
+        new ApiResponce(
           200,
           { accessToken, refreshToken: newrefreshToken },
           "Access token Refreshed"
@@ -236,7 +236,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, {}, "Password Change Successfully"));
+      .json(new ApiResponce(200, {}, "Password Change Successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -248,7 +248,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 const getCurrentUser = asyncHandler(async (req, res) => {
   return res
     .status(200)
-    .json(new ApiResponse(200, req.user, "User fetched successfully"));
+    .json(new ApiResponce(200, req.user, "User fetched successfully"));
 });
 
 // Update User Acount Detail
@@ -273,7 +273,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, user, "Acount details update Successfully"));
+      .json(new ApiResponce(200, user, "Acount details update Successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -308,7 +308,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, user, "Avatar uploaded Successfully"));
+      .json(new ApiResponce(200, user, "Avatar uploaded Successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -343,7 +343,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, user, "CoverImage upload successfully"));
+      .json(new ApiResponce(200, user, "CoverImage upload successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -420,7 +420,7 @@ const getUserChanalProfile = asyncHandler(async (req, res) => {
     return res
       .status(200)
       .json(
-        new ApiResponse(200, channel[0], "User channel fetched Successfully")
+        new ApiResponce(200, channel[0], "User channel fetched Successfully")
       );
   } catch (error) {
     return res
@@ -477,7 +477,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
     return res
       .status(200)
       .json(
-        new ApiResponse(
+        new ApiResponce(
           200,
           user[0].watchHistory,
           "WatchHistory fetched successFully"

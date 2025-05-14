@@ -1,7 +1,7 @@
 import mongoose, { isValidObjectId } from "mongoose";
 import { Playlist } from "../models/playlist.model.js";
 import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiResponce } from "../utils/ApiResponce.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import { Video } from "../models/video.model.js";
@@ -33,7 +33,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
     }
     return res
       .status(201)
-      .json(new ApiResponse(201, playlist, "Playlist created  successfully"));
+      .json(new ApiResponce(201, playlist, "Playlist created  successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -65,8 +65,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, playlists, "Playlist fetched successfully"));
-
+      .json(new ApiResponce(200, playlists, "Playlist fetched successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -91,7 +90,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, playlist, "PlayList fetched successfully"));
+      .json(new ApiResponce(200, playlist, "PlayList fetched successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -161,7 +160,7 @@ const addVideotoPlaylist = asyncHandler(async (req, res) => {
     return res
       .status(200)
       .json(
-        new ApiResponse(
+        new ApiResponce(
           200,
           updatedPlaylist,
           "Video added to playlist successfully"
@@ -232,7 +231,7 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, updatePlaylist, "Video removed"));
+      .json(new ApiResponce(200, updatePlaylist, "Video removed"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -283,11 +282,11 @@ const updatePlaylist = asyncHandler(async (req, res) => {
         "Something went wrong when updating the playlist"
       );
     }
- 
+
     return res
       .status(200)
       .json(
-        new ApiResponse(200, updatedPlaylist, "The playlist has been updated")
+        new ApiResponce(200, updatedPlaylist, "The playlist has been updated")
       );
   } catch (error) {
     return res
@@ -331,9 +330,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(
-        new ApiResponse(200, "Playlist deleted successfully")
-      );
+      .json(new ApiResponce(200, "Playlist deleted successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)

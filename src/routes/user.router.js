@@ -43,7 +43,7 @@ router.route("/current-user").get(verifyJWT, getCurrentUser);
 
 router.route("/update-account").patch(verifyJWT, updateAccountDetails);
 
-router.route("/change-password").post(verifyJWT, changeCurrentPassword);
+router.route("/change-password").patch(verifyJWT, changeCurrentPassword);
 
 router
   .route("/avatar")
@@ -55,6 +55,7 @@ router
 
 router.route("/channel/:username").get(verifyJWT, getUserChanalProfile);
 
-router.route("/history").get(verifyJWT, getWatchHistory);
 
+router.route("/history").get(verifyJWT, getWatchHistory);
+ 
 export default router;

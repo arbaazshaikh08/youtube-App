@@ -1,83 +1,40 @@
-import mongoose, { isValidObjectId } from "mongoose";
+import mongoose from "mongoose";
 import { Video } from "../models/video.model.js";
 import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiResponce } from "../utils/ApiResponce.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Comment } from "../models/comment.model.js";
 import { Like } from "../models/like.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { User } from "../models/user.model.js";
 
-// Get All Videos with search, pagination, and sorting
 const getAllvideos = asyncHandler(async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 10,
-      query = "",
-      sortBy = "createdAt",
-      sortType = "asc",
-    } = req.query;
+    const { page = 1, limit = 10 } = req.query;
 
-    // Aggregate pipeline to fetch videos with search, lookup, and sorting
-    const videos = await Video.aggregate([
-      {
-        $match: {
-          $or: [
-            { title: { $regex: query, $options: "i" } },
-            { description: { $regex: query, $options: "i" } },
-          ],
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "owner",
-          foreignField: "_id",
-          as: "videoBy",
-        },
-      },
-      {
-        $unwind: {
-          path: "$videoBy",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $project: {
-          thumbnail: 1,
-          videofile: 1,
-          title: 1,
-          description: 1,
-          videoBy: {
-            fullName: "$videoBy.fullName",
-            username: "$videoBy.username",
-            avatar: "$videoBy.avatar",
-          },
-        },
-      },
-      {
-        $sort: {
-          [sortBy]: sortType === "asc" ? 1 : -1,
-        },
-      },
-      {
-        $skip: (page - 1) * limit,
-      },
-      {
-        $limit: parseInt(limit),
-      },
-    ]);
+    if (page < 1 || limit < 1) {
+      throw new ApiError(400, "Page and limit must be greater than 0");
+    }
+    const allVideos = await Video.find({})
+      .populate("owner", "username profilePic")
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    if (!allVideos || allVideos.length === 0) {
+      throw new ApiError(404, "No videos found");
+    }
 
     return res
       .status(200)
-      .json(new ApiResponse(200, videos, "fetched successfully"));
+      .json(new ApiResponce(200, allVideos, "All videos fetched successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
       .json({ message: error.message || "Something went wrong" });
   }
 });
+
 
 // Publish a Videos
 const publishAVideo = asyncHandler(async (req, res) => {
@@ -133,7 +90,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     }
     return res
       .status(201)
-      .json(new ApiResponse(201, uploadedvideo, "Video uploaded successfully"));
+      .json(new ApiResponce(201, uploadedvideo, "Video uploaded successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -196,7 +153,7 @@ const getVideoById = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, video[0], " Video get successfully"));
+      .json(new ApiResponce(200, video[0], " Video get successfully"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -247,12 +204,12 @@ const updatedVideo = asyncHandler(async (req, res) => {
         500,
         "Something went wrong when updating video details"
       );
-    } 
+    }
 
     return res
       .status(200)
       .json(
-        new ApiResponse(200, updatedVideo, "Video details updated successfully")
+        new ApiResponce(200, updatedVideo, "Video details updated successfully")
       );
   } catch (error) {
     return res
@@ -297,7 +254,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, updatedVideo, "Publish status toggled"));
+      .json(new ApiResponce(200, updatedVideo, "Publish status toggled"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
@@ -335,7 +292,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
       }
     );
 
-    return res.status(200).json(new ApiResponse(200, deleted, "deleted"));
+    return res.status(200).json(new ApiResponce(200, deleted, "deleted"));
   } catch (error) {
     return res
       .status(error.statusCode || 500)
