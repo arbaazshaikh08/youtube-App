@@ -70,7 +70,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
 
 // Delete Twwet
 const deleteTweet = asyncHandler(async (req, res) => {
-  try {
+  try { 
     const { tweetId } = req.params;
 
     if (!tweetId) {
