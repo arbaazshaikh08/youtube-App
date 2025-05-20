@@ -3,7 +3,6 @@ import { ApiError } from "../utils/ApiError.js";
 import { Like } from "../models/like.model.js";
 import { ApiResponce } from "../utils/ApiResponce.js";
 import { Comment } from "../models/comment.model.js";
-
 import { Tweet } from "../models/tweet.Model.js";
 
 // Toggle Video Like
@@ -188,8 +187,8 @@ const getLikedVideos = asyncHandler(async (req, res) => {
       },
     ]);
     return res
-      .status(200) 
-      .json( 
+      .status(200)
+      .json(
         new ApiResponce(200, likedVideos, "liked videos fetched successfully")
       );
   } catch (error) {
